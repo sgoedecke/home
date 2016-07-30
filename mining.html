@@ -1,0 +1,188 @@
+<html>
+	<head>
+		<script language="javascript" type="text/javascript">	
+//set variables
+var gold = 0;
+var miners = 20;
+var depth = 0;
+//functions which update your gold and miners
+function updateGold(new_gold) {
+	document.getElementById("gold").innerHTML = String(new_gold)
+}
+
+function updateMiners(new_miners) {
+	document.getElementById("miners").innerHTML = String(new_miners)
+}
+function updateDepth(new_depth) {
+	document.getElementById("depth").innerHTML = String(new_depth) + "m"
+	if (new_depth  > 399) {
+		document.getElementById("myconsole").innerHTML = ""; //quick and dirty console clear
+		msgAlert("You hit bedrock!");
+		endGame();
+	}
+}
+
+//functions that write to the output buffer
+function msgPrint(msg) {
+	var current_buffer = String(document.getElementById("myconsole").innerHTML);
+
+	var buffer_length = current_buffer.split("<br>").length;
+
+
+	if (buffer_length > 5) {
+		current_buffer = ""; //clear buffer
+	} 
+
+	document.getElementById("myconsole").innerHTML = current_buffer + "<br>"+ msg;
+}
+function msgAlert(msg){
+	new_data = "<font color=\"red\">" + msg + "</font>";
+	msgPrint(new_data);
+}
+function msgReward(msg){
+	new_data = "<font color=\"gold\">" + msg + "</font>";
+	msgPrint(new_data);
+}
+
+//core functions
+
+function resetGame(){
+	gold = 0;
+	miners = 100;
+	depth = 0;
+	document.getElementById("myconsole").innerHTML = ""; //quick and dirty console clear
+	drawClear();
+	updateGold(gold);
+	updateMiners(miners);
+	updateDepth(depth);
+
+	document.getElementById("btndig").disabled = false;
+	document.getElementById("btnhire").disabled = false;
+}
+
+function endGame(){
+	msgAlert("You ended up with " + gold + " tons of gold.");
+	document.getElementById("btndig").disabled = true;
+	document.getElementById("btnhire").disabled = true;
+}
+
+function strikeGold(){
+	gold = gold + 10;
+	updateGold(gold);
+	msgReward("You struck gold!");
+}
+
+function failedAttempt(){
+	msgPrint("No luck.");
+}
+
+function miningAccident(){
+	miners = miners - 5;
+	updateMiners(miners);
+	msgAlert("There was a mining accident!");
+
+	if (miners < 1) {
+		document.getElementById("myconsole").innerHTML = ""; //quick and dirty console clear
+		msgAlert("You ran out of men!");
+		endGame();
+	}
+}
+
+function hireMiners(){
+	//it costs 5 gold to hire 5 miners
+	if (gold > 4) {
+		miners = miners + 5;
+		gold = gold -5;
+		updateGold(gold);
+		updateMiners(miners);
+		msgPrint("You hired another mining crew.");
+	} else {
+		msgAlert("You don't have enough money!");
+	}
+}
+
+function dig(){
+	randint = Math.floor((Math.random()*10)+1);
+	if (randint < 4) {
+		strikeGold();
+		depth = depth + 10;
+		drawGold(depth);
+		drawMine(depth);
+		updateDepth(depth);
+	} else if (randint < 8) {
+		failedAttempt();
+		depth = depth + 10;
+		drawMine(depth);
+		updateDepth(depth);
+	} else {
+		miningAccident();
+		drawDeath(depth);
+	}
+}
+
+//drawing functions
+
+function drawClear(){
+	ctx.fillStyle = "#663300"; //brown
+	ctx.fillRect(0,0,200,400);
+}
+
+function drawMine(depth){
+	ctx.fillStyle = "#ffffff"; //white
+	ctx.fillRect(95,0,20,depth);
+}
+
+function drawGold(depth){
+	var i = depth-10;
+	ctx.fillStyle = "#ffff00"; //gold
+	ctx.fillRect(91,i,30,10);
+}
+
+function drawDeath(depth){
+	ctx.fillStyle = "#ff0000"; //red
+	ctx.fillRect(83,depth,4,4);
+}
+
+
+		</script>
+	</head>
+
+	<body>
+		<div>
+			<h1>Mine for gold!</h1>
+		</div>
+
+		<div>
+		<button id = "btndig" onclick="dig()"> Dig! </button>
+		<button  id = "btnhire" onclick="hireMiners()"> Hire more miners </button>
+		<button onclick ="resetGame()"> Reset the game </button>
+		</div>
+		<br>
+		<div>
+		<font color="gold">Gold: </font> <span id="gold"> </span> &nbsp;
+		<font color="blue">Miners: </font> <span id="miners"> </span> &nbsp;
+		<font>Depth: </font> <span id="depth"></span>
+		</div>
+		<br>
+		<div>
+		&nbsp;
+			<canvas id="mycanvas" width="200" height="400"></canvas>
+		</div>
+
+		<div>
+		<p id="myconsole" />
+		</div>
+
+
+		<script>
+		
+			var canvas = document.getElementById("mycanvas");
+			var ctx = canvas.getContext("2d");
+			updateGold(gold);
+			updateMiners(miners);
+			updateDepth(depth);
+			drawClear();
+		
+		</script>
+	</body>
+</html>
