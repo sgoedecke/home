@@ -1,0 +1,167 @@
+<html>
+	<head>
+	<style type="text/css">
+		#console, h1, h3 {
+			font-family: arial;
+		}
+	</style>
+	</head>
+
+	<body>
+	<h1>Stay dry!</h1>
+		<div>
+			<canvas id="canvas" width="400" height="400"></canvas>
+			<!-- The size of the canvas determines the size of the game world. It has to be called "canvas" though. -->
+		</div>
+		<div>
+			<span id="console"> </span>	
+			<!-- This must be called "console". -->
+		</div>
+
+		<script src="boxEngine.js" type="text/javascript"></script>
+		<script type="text/javascript">
+		
+		// some sample code for how to use the engine
+
+			document.onkeydown = boxEngine.handleKeys; // for keyboard input
+			document.onkeyup = boxEngine.clearKeys;
+
+			boxEngine.BACKGROUND_COLOUR = "#D3D3D3"; // boring awful colour scheme
+			boxEngine.SCORE_COLOUR = "#000000";
+			boxEngine.ENEMY_COLOUR = "#0000ff";
+			boxEngine.PLAYER_COLOUR = "#000000";
+			boxEngine.BORDER_COLOUR = "#000000";
+			boxEngine.PAUSE_MENU_COLOUR = "#80b3ff";
+			ALT_ENEMY_COLOUR = "#0066ff";
+
+			var frame_count=0;
+
+			// console messages
+			function msgDeath() {
+				boxEngine.msgPrint("You died! Final score: " + player.score);
+			}
+
+			function msgVictory() {
+				boxEngine.msgPrint("You won!");
+			}
+
+			// creating enemies
+
+			function placeRandomEnemy() {
+				var randint1 = (Math.random()); // generate random integer between 12 and 11
+				var randint2 = (Math.random());
+				var randenemy = new boxEngine.Enemy(randint1*canvas.width, 0, 10,10);
+				randenemy.takeTurn = fallDownAI; // set AI to the default roaming AI in boxEngine
+				if (randint2 > 0.5) {
+					randenemy.colour = ALT_ENEMY_COLOUR;
+					randenemy.speed = 2;
+				}
+			}
+
+			function placeEnemies(frequency) {
+				// place a random amount of enemies
+				var randint = Math.floor((Math.random()*frequency))
+				var i=0;
+				while (i < randint) {
+					placeRandomEnemy();
+					i++;
+				}
+			}
+
+			// enemy AI
+
+			function fallDownAI() {
+				// just falls down!
+				this.goDown();
+				
+				if (this.y_pos > canvas.height) {
+					this.destroy();
+				}
+			}
+
+			// resetting the game
+
+			function newGame() {
+				player.x_pos = canvas.width/2;
+				player.y_pos = canvas.height-30;
+				current_input = "none";
+				player.score = 0;
+				frame_count = 0;
+				placeEnemies();
+				boxEngine.placeBorders(5); // borders have a width of 5
+
+			}
+
+			function loseGame(){
+				msgDeath();
+				endGame();
+			}
+
+			function endGame() {
+				boxEngine.switchPaused(); //pause
+				boxEngine.clearEnemies();
+				newGame();
+			}
+
+			// handle movement
+
+			function handleLeftRightMovement(player) {
+				switch (boxEngine.current_input) {
+				case "left":
+					player.goLeft();
+					break;
+				case "right":
+					player.goRight();
+					break;
+				}
+			}
+
+			// main loop
+
+			function mainLoop() {
+				// increment score
+				frame_count++;
+				player.score = Math.floor(frame_count/100);
+
+				// place enemies
+				if ((frame_count % 5) == 0) {
+				placeEnemies(1.5);
+				}
+
+				// iterate through enemies
+				var c;
+				for (c in boxEngine.enemiesArray) {
+					enemy = boxEngine.enemiesArray[c];
+					// check for collisions
+					if (boxEngine.hasCollided(player, enemy)) {
+						loseGame();
+						return;
+					}
+					// move enemies around
+					enemy.takeTurn();
+				}
+
+				// handle keystrokes for 2d movement
+				handleLeftRightMovement(player);
+
+				// draw game
+				boxEngine.drawGame();
+			}
+
+			function runGame(){
+				if (!boxEngine.isPaused) {
+					mainLoop();
+				}
+			}
+
+			// setup and running
+			var player = new boxEngine.Player(canvas.width/2,canvas.height-30,10,10);  //x, y, width, height
+
+			boxEngine.drawIntro(); // draw opening screen
+			boxEngine.switchPaused(); // pause the game
+			newGame(); // initialize variables, enemies, borders
+
+			setInterval(runGame, boxEngine.GAME_SPEED); 
+		</script>
+	</body>
+	</html>
