@@ -1,0 +1,289 @@
+<html>
+	<head>
+	<style type="text/css">
+		#console, h1, h3 {
+			font-family: arial;
+		}
+	</style>
+	</head>
+
+	<body>
+	<h1>boxEngine demo</h1>
+		<div>
+			<canvas id="canvas" width="500" height="300"></canvas>
+			<!-- The size of the canvas determines the size of the game world. It has to be called "canvas" though. -->
+		</div>
+		<div>
+			<span id="console"> </span>	
+			<!-- This must be called "console". -->
+		</div>
+
+		<script src="boxEngine.js" type="text/javascript"></script>
+		<script type="text/javascript">
+		
+		// some sample code for how to use the engine
+
+			document.onkeydown = boxEngine.handleKeys; // for keyboard input
+			document.onkeyup = boxEngine.clearKeys;
+
+			var BIG_SPITTER_COLOUR = "#D3D3D3";
+			var SMALL_SPITTER_COLOUR = "#00fff0";
+			var GOAL_COLOUR = "#00ff00";
+
+			var current_stage = 0;
+
+			// console messages
+			function msgDeath() {
+				boxEngine.msgPrint("You died! Final score: " + player.score);
+			}
+
+			function msgVictory() {
+				boxEngine.msgPrint("You won!");
+			}
+
+			// ai functions
+
+			function bulletAI() {
+				// travel in the relevant direction
+				switch (this.direction) {
+				case "left":
+					this.goLeft();
+					break;
+				case "right":
+					this.goRight();
+					break;
+				case "up":
+					this.goUp();
+					break;
+				case "down":
+					this.goDown();
+					break;
+				}
+
+			// don't need to check for border impacts, since isValidMove does this already in the engine!
+			}
+
+			function spitterAI() {
+				if ((boxEngine.frame_counter % this.frequency)==0) {
+					var newbullet = new boxEngine.Enemy(this.x_pos, this.y_pos, 5,5);
+					newbullet.takeTurn = bulletAI;
+					newbullet.direction = this.direction;
+					newbullet.colour = this.colour;
+				}
+			}
+
+			function spitterBigAI() {
+				if ((boxEngine.frame_counter % this.frequency)==0) {
+					var newbullet = new boxEngine.Enemy(this.x_pos, this.y_pos, 5,5);
+					newbullet.takeTurn = bulletAI;
+					newbullet.direction = this.direction
+					newbullet.colour = this.colour;
+
+					newbullet.playerEffect = function makeLarger(player){
+						if ((player.width < 50) && (player.height < 50)) { // max player size
+						player.width = player.width + 10
+						player.height = player.height + 10
+					}
+					}
+				}
+			}
+
+			function spitterSmallAI() {
+				if ((boxEngine.frame_counter % this.frequency)==0) {
+					var newbullet = new boxEngine.Enemy(this.x_pos, this.y_pos, 5,5);
+					newbullet.takeTurn = bulletAI;
+					newbullet.direction = this.direction
+					newbullet.colour = this.colour;
+
+					newbullet.playerEffect = function makeSmaller(player){
+						if ((player.width > 10) && (player.height > 10)) {
+						player.width = player.width - 10
+						player.height = player.height - 10
+						} else {
+							loseStage(); // if the player can't be made any smaller, kill the player
+						}
+					}
+				}
+			}
+
+
+			// creating enemies
+
+			function placeEnemySwarm() {
+				var j=0;
+				var i=0;
+				while (j < 4) {
+					while (i < 4) {
+						enemy = new boxEngine.Enemy(100+60*i, 50+60*j, 10,10);
+						i++;
+						enemy.takeTurn = boxEngine.roamAI;
+					}
+					j++;
+					i=0;
+				}
+			}
+
+			function placeEntities(stage) {
+
+				switch (stage) {
+					case 0:
+						placeGoal(canvas.width-40,canvas.height/2);
+						//placeEnemySwarm();
+						break;
+					case 1:
+						placeGoal(canvas.width-40,canvas.height/2);
+						// place spitters
+						var spitter = new boxEngine.Enemy(150, canvas.height-10,10,10);
+						spitter.takeTurn = spitterBigAI;
+						spitter.frequency = 50;
+						spitter.direction = "up";
+						spitter.colour = BIG_SPITTER_COLOUR;
+
+						spitter = new boxEngine.Enemy(300, canvas.height-10,10,10);
+						spitter.takeTurn = spitterSmallAI;
+						spitter.frequency = 20;
+						spitter.direction = "up";
+						spitter.colour = SMALL_SPITTER_COLOUR;
+
+						break;
+					case 2:
+						var goal = placeGoal(canvas.width-40,canvas.height/2);
+						var enemy  = new boxEngine.Enemy(goal.x_pos-400, goal.y_pos - 25, 600, 5); // top wall
+						var enemy2  = new boxEngine.Enemy(goal.x_pos-400, goal.y_pos + goal.height + 20, 600, 5); // bottom wall
+						
+						var spitter = new boxEngine.Enemy(150, canvas.height-100,10,10);
+						spitter.takeTurn = spitterBigAI;
+						spitter.frequency = 100;
+						spitter.direction = "up";
+						spitter.colour = BIG_SPITTER_COLOUR;
+
+						var spitter = new boxEngine.Enemy(250, canvas.height-100,10,10);
+						spitter.takeTurn = spitterBigAI;
+						spitter.frequency = 100;
+						spitter.direction = "up";
+						spitter.colour = BIG_SPITTER_COLOUR;
+
+						var spitter = new boxEngine.Enemy(350, canvas.height-100,10,10);
+						spitter.takeTurn = spitterBigAI;
+						spitter.frequency = 100;
+						spitter.direction = "up";
+						spitter.colour = BIG_SPITTER_COLOUR;
+
+						break;
+					case 3:
+						winGame();
+				}
+			}
+
+			function placeGoal(x,y) {
+				var goal = new boxEngine.Enemy(x,y, 10,10);
+				goal.colour = GOAL_COLOUR;
+				goal.playerEffect = winStage;
+				return goal;
+			}
+			// resetting the game
+
+			function newGame() {
+				player.x_pos = 20;
+				player.y_pos = canvas.height/2;
+				player.width = 20;
+				player.height = 20;
+				current_input = "none";
+				player.score = 0;
+				placeEntities(0);
+				boxEngine.placeBorders(5, solid=false); // borders have a width of 5
+			}
+
+			function loseGame(){
+				msgDeath();
+				endGame();
+			}
+			function winGame(){
+				msgVictory();
+				endGame();
+			}
+
+			function endGame() {
+				boxEngine.switchPaused(); //pause
+				boxEngine.clearEnemies();
+				current_stage = 0;
+				newGame();
+			}
+
+			function loseStage() {
+				setupStage(current_stage);
+			}
+
+			function winStage(){
+				current_stage++;
+				setupStage(current_stage);
+			}
+
+			function setupStage(stage){
+				boxEngine.clearEnemies(); // clear enemies, keep borders
+				player.x_pos = 20;
+				player.y_pos = canvas.height/2;
+				player.width = 20;
+				player.height = 20;
+				current_input = "none";
+				placeEntities(stage);
+				boxEngine.placeBorders(5, solid=false); // borders have a width of 5
+			}
+
+			// main loop
+
+			function mainLoop() {
+				// increment score
+				player.score=current_stage;
+				boxEngine.frame_counter++;
+				// iterate through enemies
+				var c;
+				for (c in boxEngine.enemiesArray) {
+					enemy = boxEngine.enemiesArray[c];
+					// check for collisions
+					if (boxEngine.hasCollided(player, enemy)) {
+						if (!enemy.solid) { // if player can interact with the enemy
+							if ('playerEffect' in enemy) {
+								enemy.playerEffect(player);
+								enemy.destroy();
+							} else {
+								loseStage();
+							}
+						return;
+						}
+					}
+					// move enemies around
+					enemy.takeTurn();
+				}
+
+				// apply gravity to everything
+			//	boxEngine.applyAllGravity();
+
+				// handle keystrokes for 2d movement
+				boxEngine.handleDefaultMovement(player);
+				
+
+				// draw game
+				boxEngine.drawGame();
+			}
+
+			function runGame(){
+				if (!boxEngine.isPaused) {
+					mainLoop();
+				}
+			}
+
+			// setup and running
+			var player = new boxEngine.Player(20,20,10,10);  //x, y, width, height
+			player.speed = 2;
+		//	player.affectedByGravity = true;
+			boxEngine.gravity = 1;
+
+			boxEngine.drawIntro(); // draw opening screen
+			boxEngine.switchPaused(); // pause the game
+			newGame(); // initialize variables, enemies, borders
+
+			setInterval(runGame, boxEngine.GAME_SPEED); 
+		</script>
+	</body>
+	</html>

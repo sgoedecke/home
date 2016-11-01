@@ -24,65 +24,132 @@ var boxEngine = {
 	MENU_FONT : "20px Arial",
 
 	isPaused : false,
+	frame_counter : 0, //counts number of frames passed by
 
 	enemiesArray : [], //array of enemies on the map
 	bordersArray : [], //array of screen borders (they're just long motionless enemies)
+	entitiesArray : [], //array of all entities
+
+	gravity : 1, // speed gravity pulls you down
 
 	// enemy and player objects
 
+	Entity: function(x_pos,y_pos,width, height) {
+		// every object in the world is an entity
+		boxEngine.entitiesArray.push(this); // put it in the list
+
+		this.speed = 1;
+
+		this.affectedByGravity = false;
+		this.solid = false; //player can interact or pass through it
+
+		this.goLeft = function(speed = this.speed) {
+			this.storeLastPosition();
+			this.x_pos = this.x_pos - this.speed;
+			this.checkValidMove();
+		}
+		this.goRight = function(speed = this.speed) {
+			this.storeLastPosition();
+			this.x_pos = this.x_pos + this.speed;
+			this.checkValidMove();
+		}
+		this.goUp = function(speed = this.speed) {
+			this.storeLastPosition();
+			this.y_pos = this.y_pos - this.speed;
+			this.checkValidMove();
+		}
+		this.goDown = function(speed = this.speed) {
+			this.storeLastPosition();
+			this.y_pos = this.y_pos + this.speed;
+			this.checkValidMove();
+		}
+
+		this.storeLastPosition = function() {
+			this.last_x_pos = this.x_pos;
+			this.last_y_pos = this.y_pos;
+			this.last_width = this.width;
+			this.last_height = this.height;
+		}
+
+		this.rollbackMove = function() {
+			this.x_pos = this.last_x_pos;
+			this.y_pos = this.last_y_pos;
+			this.width = this.last_width;
+			this.height = this.last_height;
+		}
+
+		this.checkValidMove = function() {
+			for (c in boxEngine.bordersArray) {
+				border = boxEngine.bordersArray[c];
+				if (boxEngine.hasCollided(this, border)) {
+					if (border.solid) {
+						this.rollbackMove();
+					} else {
+						this.destroy();
+					}
+					return;
+				}
+			}
+		}
+
+		this.applyGravity = function() {
+			// move down at the speed of the world's gravity
+			this.storeLastPosition();
+			this.y_pos = this.y_pos + boxEngine.gravity;
+			this.checkValidMove();
+		}
+	},
+
 	Enemy: function(x_pos, y_pos, width, height) {
+		this.inheritFrom = boxEngine.Entity;
+		this.inheritFrom();
+
 		this.x_pos = x_pos;
 		this.y_pos = y_pos;
 		this.width = width;
 		this.height = height;	// all hitboxes are rectangular
-		this.speed = 1;
 
 		boxEngine.enemiesArray.push(this); // put it in the list
 
 		this.destroy = function() {
-			var myindex = boxEngine.enemiesArray.indexOf(this);
-			boxEngine.enemiesArray.splice(myindex,1); // remove this enemy from the list
+			var enemyindex = boxEngine.enemiesArray.indexOf(this);
+			boxEngine.enemiesArray.splice(enemyindex,1); // remove this enemy from the list
+
+			var entityindex = boxEngine.entitiesArray.indexOf(this);
+			boxEngine.entitiesArray.splice(entityindex,1); // remove enemy from the list of all entities as well
 		}
 
-		this.goLeft = function() {
-			this.x_pos = this.x_pos - this.speed;
-		}
-		this.goRight = function() {
-			this.x_pos = this.x_pos + this.speed;
-		}
-		this.goUp = function() {
-			this.y_pos = this.y_pos - this.speed;
-		}
-		this.goDown = function() {
-			this.y_pos = this.y_pos + this.speed;
-		}
 		this.takeTurn = function() {
 			return;	// default enemy AI is to do nothing
 		}
 	},
 
 	Player: function(x_pos, y_pos, width, height) {
-		// todo: combine the commonalities in enemy/player classes
+		this.inheritFrom = boxEngine.Entity;
+		this.inheritFrom();
+
 		this.x_pos = x_pos;
 		this.y_pos = y_pos;
 		this.width = width;
 		this.height = height;
 
 		this.score = 0;
-		this.speed = 1;
 
-		this.goLeft = function() {
-			this.x_pos = this.x_pos - this.speed;
+		this.destroy = function() {
+			return; // this happens whenever player hits wall
 		}
-		this.goRight = function() {
-			this.x_pos = this.x_pos + this.speed;
-		}
-		this.goUp = function() {
-			this.y_pos = this.y_pos - this.speed;
-		}
-		this.goDown = function() {
-			this.y_pos = this.y_pos + this.speed;
-		}
+	},
+
+	// gravity
+
+	applyAllGravity: function() {
+		var c;
+		for (c in boxEngine.entitiesArray) {
+			entity = boxEngine.entitiesArray[c];
+			if (entity.affectedByGravity) {
+				entity.applyGravity();
+			}
+		}	
 	},
 
 	// default AI patterns
@@ -103,16 +170,6 @@ var boxEngine = {
 			} else {
 				return;
 			}
-
-		//destroy if offscreen
-		var c;
-		for (c in boxEngine.bordersArray) {
-			border = boxEngine.bordersArray[c];
-			if (boxEngine.hasCollided(this, border)) {
-				this.destroy();
-				return;
-			}
-		}
 	},
 
 	// collision handling
@@ -179,7 +236,8 @@ var boxEngine = {
 
 	// functions which handle setup and resetting
 
-	placeBorders: function(size) {
+	placeBorders: function(size, solid=false) {
+		this.bordersArray = [];
 		//top
 		top_border = new boxEngine.Enemy(0,0,this.canvas.width,size);
 		left_border = new boxEngine.Enemy(0,0,size,this.canvas.height);
@@ -195,6 +253,14 @@ var boxEngine = {
 		this.bordersArray.push(left_border);
 		this.bordersArray.push(right_border);
 		this.bordersArray.push(bottom_border);
+
+		if (solid) {
+			var c;
+			for (c in boxEngine.bordersArray) {
+				border = boxEngine.bordersArray[c];
+				border.solid = true;
+			}
+		}
 	},
 
 

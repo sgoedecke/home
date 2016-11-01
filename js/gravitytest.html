@@ -10,7 +10,7 @@
 	<body>
 	<h1>Put the name of your game here!</h1>
 		<div>
-			<canvas id="canvas" width="300" height="200"></canvas>
+			<canvas id="canvas" width="600" height="400"></canvas>
 			<!-- The size of the canvas determines the size of the game world. It has to be called "canvas" though. -->
 		</div>
 		<div>
@@ -43,12 +43,13 @@
 
 				var randenemy = new boxEngine.Enemy(canvas.width/randint1 + 20, canvas.height/randint2 + 20, 10,10);
 				randenemy.takeTurn = boxEngine.roamAI; // set AI to the default roaming AI in boxEngine
+				randenemy.affectedByGravity = true;
 			}
 
 			function placeEnemies() {
 				// place a grid of enemies
 				var i=0;
-				while (i < 10) {
+				while (i < 5) {
 					placeRandomEnemy();
 					i++;
 				}
@@ -62,7 +63,7 @@
 				current_input = "none";
 				player.score = 0;
 				placeEnemies();
-				boxEngine.placeBorders(5); // borders have a width of 5
+				boxEngine.placeBorders(5, solid=true); // borders have a width of 5
 
 			}
 
@@ -88,15 +89,21 @@
 					enemy = boxEngine.enemiesArray[c];
 					// check for collisions
 					if (boxEngine.hasCollided(player, enemy)) {
+						if (!enemy.solid) { // if player can interact with the enemy
 						loseGame();
 						return;
+						}
 					}
 					// move enemies around
 					enemy.takeTurn();
 				}
 
+				// apply gravity to everything
+				boxEngine.applyAllGravity();
+
 				// handle keystrokes for 2d movement
 				boxEngine.handleDefaultMovement(player);
+				
 
 				// draw game
 				boxEngine.drawGame();
@@ -110,6 +117,9 @@
 
 			// setup and running
 			var player = new boxEngine.Player(20,20,10,10);  //x, y, width, height
+			player.speed = 2;
+			player.affectedByGravity = true;
+			boxEngine.gravity = 1;
 
 			boxEngine.drawIntro(); // draw opening screen
 			boxEngine.switchPaused(); // pause the game

@@ -1,22 +1,106 @@
 <html>
 <head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<!-- Latest compiled and minified CSS -->
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+	<!-- Optional theme -->
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
 	<title>Home</title>
+
+
 </head>
 <body>
-	<div>
-		<p>This is my personal website. It hosts some of my projects.</p>
-	</div>
+	<div class="navbar navbar-default">
+		<div class="container">
+			<h1>Sean Goedecke</h1>
 
-	<div>
-		<h1>Little games</h1>
-		<h2>Messing around with javascript and HTML5</h2>
-		<a href="racer.html">Chute Racer</a> <br>
-		<a href="collect.html">Collect the dots</a> <br>
-		<a href="mining.html">Mine for gold</a><br>
-		<a href="woofdog.html">Pat the dog</a><br>
-		<a href="raindrops.html">Stay dry</a><br>
+			<p>Personal projects and blog</p>
 
+			<ul class="nav nav-tabs" role="tablist">
+				<li role="presentation" class="active"><a href="#profile" aria-controls="javascript" role="tab" data-toggle="tab">Profile</a></li>
+				<li role="presentation"><a href="#javascript" aria-controls="javascript" role="tab" data-toggle="tab">Javascript</a></li>
+				<li role="presentation"><a href="#python" aria-controls="python" role="tab" data-toggle="tab">Python</a></li>
+				<li role="presentation"><a href="#resume" aria-controls="settings" role="tab" data-toggle="tab">Resume</a></li>
+			</ul>
+		</div>
 	</div>
+	<div class="container">
+
+		<div>
+		  <!-- Tab panes -->
+		  <div class="tab-content">
+
+				<div role="tabpanel" class="tab-pane active" id="profile">
+					Hi, I'm Sean!
+				</div>
+
+		    <div role="tabpanel" class="tab-pane" id="javascript">
+					<div class="panel panel-default">
+					  <div class="panel-body">
+					  	Here are some apps I've written in Javascript.
+					  </div>
+					</div>
+
+					<div class="panel panel-default">
+					  <div class="panel-heading">
+					    <h3 class="panel-title">Melb Finder</h3>
+					  </div>
+					  <div class="panel-body">
+							<a href="https://sgoedecke.github.io/melb-finder/">Melb Finder</a> is a React app that
+							lists nearby public artworks in the City of Melbourne. Move the slider to change the search radius.
+					  </div>
+					</div>
+
+					<div class="panel panel-default">
+					  <div class="panel-heading">
+					    <h3 class="panel-title">Box Engine</h3>
+					  </div>
+					  <div class="panel-body">
+							<p>
+								<a href="https://github.com/sgoedecke/home/blob/gh-pages/boxEngine.js">BoxEngine</a> is a dead-simple Javascript module for making 2d games on a HTML5 Canvas.
+								Here are some examples of it in use:
+							</p>
+							<a href="js/enginedemo.html">BoxEngine demo</a><br>
+							<a href="js/collect.html">Collect the dots</a> <br>
+							<a href="js/raindrops.html">Stay dry</a><br>
+							<a href="js/gravitytest.html">A first stab at implementing gravity with Box Engine</a><br>
+						</div>
+					</div>
+
+					<div class="panel panel-default">
+					  <div class="panel-heading">
+					    <h3 class="panel-title">Other stuff</h3>
+					  </div>
+					  <div class="panel-body">
+							<p>
+								Other things I made messing around with Javascript. Very, very rough.
+							</p>
+							<a href="js/racer.html">Chute Racer</a> <br>
+							<a href="js/mining.html">Mine for gold</a><br>
+							<a href="js/woofdog.html">Pat the dog</a><br>
+						</div>
+					</div>
+				</div>
+		    <div role="tabpanel" class="tab-pane" id="python">
+					Python projects on their way!
+				</div>
+		    <div role="tabpanel" class="tab-pane" id="resume">
+					Resume on its way!
+				</div>
+		  </div>
+
+		</div>
+
+
+
+
+		<!-- jQuery CDN -->
+		<script src="https://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>
+		<!-- Latest compiled and minified JavaScript -->
+		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+
 </body>
 
 </html>
