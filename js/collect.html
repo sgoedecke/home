@@ -8,19 +8,12 @@
 	</head>
 
 	<body>
-	<h1>Collect the green dots!</h1>
-	<img hidden id="spaceship" width="10" height="10" src="spaceship.jpg">
-		<div>
-			<canvas id="canvas" width="400" height="400"></canvas>
-		</div>
-		<div>
-			<span id="console"> </span>	
-			<h3>High score: <span id="highscore"> </span></h3>	
-		</div>
-		
+		<canvas id="canvasCollect" width="400" height="400"></canvas>
+		<span id="console"> </span>
+		<h3>High score: <span id="highscore"> </span></h3>
 		<script>
 			// variables
-			var canvas = document.getElementById("canvas");
+			var canvas = document.getElementById("canvasCollect");
 			var ctx = canvas.getContext("2d");
 			var msgconsole = document.getElementById("console");
 			var highscore = document.getElementById("highscore");
@@ -296,7 +289,7 @@
 
 				// draw background
 				ctx.fillStyle = BACKGROUND_COLOUR; //black
-				ctx.fillRect(0,0,canvas.width, canvas.height)	
+				ctx.fillRect(0,0,canvas.width, canvas.height)
 			}
 
 			function drawGame() {
@@ -363,7 +356,7 @@
 			}
 
 			function mainLoop() {
-				
+
 
 				//check if reached goal
 				var goal = goalsArray[0];
@@ -412,7 +405,7 @@
 				// draw game
 				drawGame();
 
- 
+
 			}
 
 			function runGame(){
@@ -420,7 +413,7 @@
 					mainLoop();
 				}
 			}
-		
+
 		// execute these commands
 		var player = new Player(20,20,10,10);
 
@@ -430,7 +423,7 @@
 		switchPaused();
 		newGame();
 
-		setInterval(runGame, GAME_SPEED); 
+		setInterval(runGame, GAME_SPEED);
 	//	mainLoop();
 
 

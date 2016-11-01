@@ -8,21 +8,32 @@
 	</head>
 
 	<body>
-	<h1>boxEngine demo</h1>
-		<div>
-			<canvas id="canvas" width="500" height="300"></canvas>
-			<!-- The size of the canvas determines the size of the game world. It has to be called "canvas" though. -->
+		<div class="modal-header">
+			<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+			<h4 class="modal-title" id="myModalLabel">Box Engine demo</h4>
 		</div>
-		<div>
-			<span id="console"> </span>	
-			<!-- This must be called "console". -->
+		<div class="modal-body">
+			<div>
+				<div>
+					<canvas id="canvas" width="500" height="300"></canvas>
+					<!-- The size of the canvas determines the size of the game world. It has to be called "canvas" though. -->
+				</div>
+				<div>
+					<span id="console"> </span>
+					<!-- This must be called "console". -->
+				</div>
+			</div>
 		</div>
 
 		<script src="boxEngine.js" type="text/javascript"></script>
 		<script type="text/javascript">
-		
-		// some sample code for how to use the engine
 
+		// some sample code for how to use the engine
+			// variables
+			var canvas = document.getElementById("canvas");
+			var ctx = canvas.getContext("2d");
+			var msgconsole = document.getElementById("console");
+			var highscore = document.getElementById("highscore");
 			document.onkeydown = boxEngine.handleKeys; // for keyboard input
 			document.onkeyup = boxEngine.clearKeys;
 
@@ -150,7 +161,7 @@
 						var goal = placeGoal(canvas.width-40,canvas.height/2);
 						var enemy  = new boxEngine.Enemy(goal.x_pos-400, goal.y_pos - 25, 600, 5); // top wall
 						var enemy2  = new boxEngine.Enemy(goal.x_pos-400, goal.y_pos + goal.height + 20, 600, 5); // bottom wall
-						
+
 						var spitter = new boxEngine.Enemy(150, canvas.height-100,10,10);
 						spitter.takeTurn = spitterBigAI;
 						spitter.frequency = 100;
@@ -261,7 +272,7 @@
 
 				// handle keystrokes for 2d movement
 				boxEngine.handleDefaultMovement(player);
-				
+
 
 				// draw game
 				boxEngine.drawGame();
@@ -283,7 +294,7 @@
 			boxEngine.switchPaused(); // pause the game
 			newGame(); // initialize variables, enemies, borders
 
-			setInterval(runGame, boxEngine.GAME_SPEED); 
+			setInterval(runGame, boxEngine.GAME_SPEED);
 		</script>
 	</body>
 	</html>

@@ -149,7 +149,7 @@ var boxEngine = {
 			if (entity.affectedByGravity) {
 				entity.applyGravity();
 			}
-		}
+		}	
 	},
 
 	// default AI patterns
@@ -286,7 +286,7 @@ var boxEngine = {
 
 		// draw background
 		this.ctx.fillStyle = this.BACKGROUND_COLOUR; //black
-		this.ctx.fillRect(0,0,this.canvas.width, this.canvas.height)
+		this.ctx.fillRect(0,0,this.canvas.width, this.canvas.height)	
 	},
 
 	drawGame: function() {
@@ -349,3 +349,5 @@ var boxEngine = {
 	}
 
 }
+
+
